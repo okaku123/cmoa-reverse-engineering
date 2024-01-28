@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  @variants responsive {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+  }
+}
+
+html {
+  overscroll-behavior-x: none;
+} 
+body {
+  overscroll-behavior-x: none;
+}
+
+code, kbd, samp, pre {
+  font-family:  "Zpix", -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+  text-rendering: geometricPrecision;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+
+.App {
+
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+.Content {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top:0;
+  left: 0;
+  
+}
+
+.iframe {
+  width: 100%;
+  height: calc( 100% - 39px );
+  top:0;
+  left: 0;
+
+}
+
+.clickable {
+cursor: pointer;
+}
+
+.loadingIcon {
+  position: absolute;
+  top:calc( 50% - (0.65rem) );
+  left: calc( 50% - 0.65rem );
+  z-index: 99;
+
+}
+
+.my-100 {
+  height: 100vh;
+}
+
+
+.blurMask {
+  backdrop-filter: blur(20px);
+  /* mask: linear-gradient( to right ,transparent, black 60%); */
+  mask: linear-gradient( to right ,transparent, black 60%);
+}
+
+
+
+/* .blurMask::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  backdrop-filter: blur(20px);
+  mask: linear-gradient(transparent, black 60%);
+  transition: 1s;
+}
+.blurMask:hover::after {opacity: 1;} */
