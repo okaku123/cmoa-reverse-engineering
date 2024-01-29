@@ -650,7 +650,6 @@ export default function Phase1Screen(props) {
       (item) => item.id == currentSelectedClipImg.id,
     );
     tempClipImgs[index] = currentSelectedClipImg;
-    //TODO: 当确定的切片是qx2时，做偏移操作
     if (clipImg.confirm.b) {
       //被确认的切片是其他已经被确认的切片的顶部
       const index = confirmClipImgs.findIndex((item) => {
@@ -671,10 +670,16 @@ export default function Phase1Screen(props) {
         lodash.cloneDeep(currentSelectedClipImg),
       ]);
       confirmClipImgs[index] = confirmClipImg;
+
+      //当前匹配的切片是已经被匹配过的切片，需要重新排序确认偏移量
+      const [needReSortItem] = confirmClipImgs.splice(index, 1);
+      confirmClipImgs.unshift(needReSortItem);
+
       setConfirmClipImgs(Array.from(confirmClipImgs));
     } else {
       clipImg.fiexd = lodash.cloneDeep(currentFiexd.current);
       const pair = {
+        renderId: nanoid(),
         id: nanoid(),
         type: "1x2",
         confirm: {},
