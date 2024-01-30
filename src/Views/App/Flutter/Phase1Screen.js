@@ -1,11 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  createRef,
-  useContext,
-  useReducer,
-} from "react";
+import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
@@ -37,91 +30,113 @@ function imgLoad(url) {
 }
 
 export default function Phase1Screen(props) {
-  const location = useLocation();
-  const clipCoordinate = location.state.clipCoordinate;
-  const imgSize = location.state.imgSize;
+  const {
+    tempClipImgs,
+    setClipImgs,
+    currentSelectedClipImg,
+    setCurrentSelectedClipImg,
+    candidateClipImgs,
+    setCandidateClipImgs,
+    candidateBottomClipImgs,
+    setCandidateBottomClipImgs,
+    latestUnConfirmClipImgs,
+    latestConfirmClipImgs,
+    unConfirmClipImgs,
+    setUnConfirmClipImgs,
+    confirmClipImgs,
+    setConfirmClipImgs,
+    currentFiexd,
+    corpOffsetRef,
+    calcHeight,
+  } = props;
 
-  const calcHeight = 3;
+  // const location = useLocation();
+  // const clipCoordinate = location.state.clipCoordinate;
+  // const imgSize = location.state.imgSize;
 
-  const [progress, setProgress] = useState(3);
+  // const calcHeight = 3;
 
-  const [mainImg, setMainImg] = useState(null);
-  const [tempClipImgs, setClipImgs] = useState([]);
-  const clipImgsRef = useRef();
-  const unClipedBottomImagesRef = useRef();
-  const [searchLoadingbottomClip, setSearchLoadingbottomClip] = useState(false);
-  const bottomClipIndexsRef = useRef();
+  // const [progress, setProgress] = useState(3);
 
-  const [currentSelectedClipImg, setCurrentSelectedClipImg] = useState(null);
-  //顶部可能匹配的切片
-  const [candidateClipImgs, setCandidateClipImgs] = useState([]);
-  //底部可能匹配的切片
-  const [candidateBottomClipImgs, setCandidateBottomClipImgs] = useState([]);
+  // const [mainImg, setMainImg] = useState(null);
+  // const [tempClipImgs, setClipImgs] = useState([]);
+  // const clipImgsRef = useRef();
+  // const unClipedBottomImagesRef = useRef();
+  // const [searchLoadingbottomClip, setSearchLoadingbottomClip] = useState(false);
+  // const bottomClipIndexsRef = useRef();
 
-  const [unConfirmClipImgs, setUnConfirmClipImgs] = useState([]);
-  const latestUnConfirmClipImgs = useLatest(unConfirmClipImgs);
-  /**
-   * 已经确认的切片 初级
-   */
-  const [confirmClipImgs, setConfirmClipImgs] = useState([]);
-  const latestConfirmClipImgs = useLatest(confirmClipImgs);
+  // const [currentSelectedClipImg, setCurrentSelectedClipImg] = useState(null);
+  // //顶部可能匹配的切片
+  // const [candidateClipImgs, setCandidateClipImgs] = useState([]);
+  // //底部可能匹配的切片
+  // const [candidateBottomClipImgs, setCandidateBottomClipImgs] = useState([]);
 
-  const [currentPage, setCurrentPage] = useState("0");
+  // const [unConfirmClipImgs, setUnConfirmClipImgs] = useState([]);
+  // const latestUnConfirmClipImgs = useLatest(unConfirmClipImgs);
+  // /**
+  //  * 已经确认的切片 初级
+  //  */
+  // const [confirmClipImgs, setConfirmClipImgs] = useState([]);
+  // const latestConfirmClipImgs = useLatest(confirmClipImgs);
 
-  const [currentSelectedPair, setCurrentSelectedPair] = useState(null);
-  const [candidateLeftClipImgs, setCandidateLeftClipImgs] = useState([]);
-  const [candidateRightClipImgs, setCandidateRightClipImgs] = useState([]);
+  // const [currentPage, setCurrentPage] = useState("0");
 
-  const [confirmLargeClipImgs, setConfirmLargeClipImgs] = useState([]);
-  const [_clipCoordinate, setClipCoordinate] = useState(null);
-  const currentFiexd = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
+  // const [currentSelectedPair, setCurrentSelectedPair] = useState(null);
+  // const [candidateLeftClipImgs, setCandidateLeftClipImgs] = useState([]);
+  // const [candidateRightClipImgs, setCandidateRightClipImgs] = useState([]);
 
-  const corpOffsetRef = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
+  // const [confirmLargeClipImgs, setConfirmLargeClipImgs] = useState([]);
+  // const [_clipCoordinate, setClipCoordinate] = useState(null);
+  // const currentFiexd = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
 
-  useEffect(() => {
-    const { width, height } = imgSize;
-    console.log(width, height);
-    const { horizontal, vertical } = clipCoordinate;
-    //将切割坐标处理为canvas切割用的偏移量
-    let temp = [];
-    for (let i = 0; i < 8; i++) {
-      const H = horizontal[i];
-      let nextH;
-      if (i == 7) {
-        nextH = height;
-      } else {
-        nextH = horizontal[i + 1];
-      }
-      for (let j = 0; j < 8; j++) {
-        const W = vertical[j];
-        let nextW;
-        if (j == 7) {
-          nextW = width;
-        } else {
-          nextW = vertical[j + 1];
-        }
+  // const corpOffsetRef = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
 
-        const offsetX = W;
-        const offsetY = H;
-        const clipWidth = nextW - W;
-        const clipHeight = nextH - H;
+  //ban
+  // useEffect(() => {
+  //   const { width, height } = imgSize;
+  //   console.log(width, height);
+  //   const { horizontal, vertical } = clipCoordinate;
+  //   //将切割坐标处理为canvas切割用的偏移量
+  //   let temp = [];
+  //   for (let i = 0; i < 8; i++) {
+  //     const H = horizontal[i];
+  //     let nextH;
+  //     if (i == 7) {
+  //       nextH = height;
+  //     } else {
+  //       nextH = horizontal[i + 1];
+  //     }
+  //     for (let j = 0; j < 8; j++) {
+  //       const W = vertical[j];
+  //       let nextW;
+  //       if (j == 7) {
+  //         nextW = width;
+  //       } else {
+  //         nextW = vertical[j + 1];
+  //       }
 
-        temp.push({ offsetX, offsetY, clipWidth, clipHeight });
-      }
-    }
+  //       const offsetX = W;
+  //       const offsetY = H;
+  //       const clipWidth = nextW - W;
+  //       const clipHeight = nextH - H;
 
-    setClipCoordinate(temp);
-    console.log(temp);
-  }, [clipCoordinate, imgSize]);
+  //       temp.push({ offsetX, offsetY, clipWidth, clipHeight });
+  //     }
+  //   }
 
-  useEffect(() => {
-    if (!!_clipCoordinate) {
-      (async () => {
-        await delay(60);
-        await prepareImgClips2();
-      })();
-    }
-  }, [_clipCoordinate]);
+  //   setClipCoordinate(temp);
+  //   console.log(temp);
+  // }, [clipCoordinate, imgSize]);
+
+  //ban
+  // useEffect(() => {
+  //   if (!!_clipCoordinate) {
+  //     (async () => {
+  //       await delay(60);
+  //       await prepareImgClips2();
+  //     })();
+  //   }
+  // }, [_clipCoordinate]);
 
   /**
    * 搜索符合目标切片顶部的三张候选切片
@@ -473,76 +488,76 @@ export default function Phase1Screen(props) {
     return entropy;
   }
 
-  async function prepareImgClips2() {
-    const img0 = await imgLoad(imgUrl);
-    console.log(img0.width, img0.height);
-    setMainImg(imgUrl);
-    let clipImgs = [];
-    let index = 0;
-    for (const coordinate of _clipCoordinate) {
-      const { offsetX, offsetY, clipWidth, clipHeight } = coordinate;
-      var blockCanvas = document.createElement("canvas");
-      blockCanvas.width = clipWidth;
-      blockCanvas.height = clipHeight;
-      console.log(clipHeight);
-      var blockCtx = blockCanvas.getContext("2d");
-      blockCtx.drawImage(
-        img0,
-        offsetX,
-        offsetY,
-        clipWidth,
-        clipHeight,
-        0,
-        0,
-        clipWidth,
-        clipHeight,
-      );
+  // async function prepareImgClips2() {
+  //   const img0 = await imgLoad(imgUrl);
+  //   console.log(img0.width, img0.height);
+  //   setMainImg(imgUrl);
+  //   let clipImgs = [];
+  //   let index = 0;
+  //   for (const coordinate of _clipCoordinate) {
+  //     const { offsetX, offsetY, clipWidth, clipHeight } = coordinate;
+  //     var blockCanvas = document.createElement("canvas");
+  //     blockCanvas.width = clipWidth;
+  //     blockCanvas.height = clipHeight;
+  //     console.log(clipHeight);
+  //     var blockCtx = blockCanvas.getContext("2d");
+  //     blockCtx.drawImage(
+  //       img0,
+  //       offsetX,
+  //       offsetY,
+  //       clipWidth,
+  //       clipHeight,
+  //       0,
+  //       0,
+  //       clipWidth,
+  //       clipHeight,
+  //     );
 
-      var imageData_b = blockCtx.getImageData(
-        0,
-        clipHeight - calcHeight,
-        clipWidth,
-        calcHeight,
-      );
-      var entropy_b = calculateEntropy(imageData_b.data);
+  //     var imageData_b = blockCtx.getImageData(
+  //       0,
+  //       clipHeight - calcHeight,
+  //       clipWidth,
+  //       calcHeight,
+  //     );
+  //     var entropy_b = calculateEntropy(imageData_b.data);
 
-      var imageData_t = blockCtx.getImageData(0, 0, clipWidth, calcHeight);
-      var entropy_t = calculateEntropy(imageData_t.data);
+  //     var imageData_t = blockCtx.getImageData(0, 0, clipWidth, calcHeight);
+  //     var entropy_t = calculateEntropy(imageData_t.data);
 
-      var imageData_l = blockCtx.getImageData(0, 0, calcHeight, clipHeight);
-      var entropy_l = calculateEntropy(imageData_l.data);
+  //     var imageData_l = blockCtx.getImageData(0, 0, calcHeight, clipHeight);
+  //     var entropy_l = calculateEntropy(imageData_l.data);
 
-      var imageData_r = blockCtx.getImageData(
-        0,
-        clipWidth - calcHeight,
-        calcHeight,
-        clipHeight,
-      );
-      var entropy_r = calculateEntropy(imageData_r.data);
+  //     var imageData_r = blockCtx.getImageData(
+  //       0,
+  //       clipWidth - calcHeight,
+  //       calcHeight,
+  //       clipHeight,
+  //     );
+  //     var entropy_r = calculateEntropy(imageData_r.data);
 
-      // 将小块Canvas转换为DataURL或进行其他操作
-      var blockDataURL = blockCanvas.toDataURL();
+  //     // 将小块Canvas转换为DataURL或进行其他操作
+  //     var blockDataURL = blockCanvas.toDataURL();
 
-      clipImgs.push({
-        renderId: nanoid(),
-        id: nanoid(),
-        coordinate,
-        originIndex: index,
-        originWidth: clipWidth,
-        originHeight: clipHeight,
-        fiexd: { top: 0, left: 0, bottom: 0, right: 0 },
-        url: blockDataURL,
-        entropy: { l: entropy_l, r: entropy_r, t: entropy_t, b: entropy_b },
-        confirm: {},
-        mismatchTopArrary: [],
-        mismatchBottomArrary: [],
-      });
-      index += 1;
-    }
-    setClipImgs(clipImgs);
-    clipImgsRef.current = clipImgs;
-    setUnConfirmClipImgs(clipImgs);
-  }
+  //     clipImgs.push({
+  //       renderId: nanoid(),
+  //       id: nanoid(),
+  //       coordinate,
+  //       originIndex: index,
+  //       originWidth: clipWidth,
+  //       originHeight: clipHeight,
+  //       fiexd: { top: 0, left: 0, bottom: 0, right: 0 },
+  //       url: blockDataURL,
+  //       entropy: { l: entropy_l, r: entropy_r, t: entropy_t, b: entropy_b },
+  //       confirm: {},
+  //       mismatchTopArrary: [],
+  //       mismatchBottomArrary: [],
+  //     });
+  //     index += 1;
+  //   }
+  //   setClipImgs(clipImgs);
+  //   clipImgsRef.current = clipImgs;
+  //   setUnConfirmClipImgs(clipImgs);
+  // }
 
   function findSingoPair(index = 0) {
     // clipImgs:{
@@ -827,157 +842,6 @@ export default function Phase1Screen(props) {
     );
     tempClipImgs[index] = currentSelectedClipImg;
     setClipImgs(Array.from(tempClipImgs));
-  }
-
-  useEffect(() => {
-    console.log(currentSelectedPair);
-    if (currentSelectedPair) {
-      searchCandidateLeftClipImgs(currentSelectedPair);
-      searchCandidateRightClipImgs(currentSelectedPair);
-    }
-  }, [currentSelectedPair]);
-
-  function searchCandidateLeftClipImgs(currentSelectedPair) {
-    const index = confirmClipImgs.findIndex((item) => {
-      return item.id == currentSelectedPair.id;
-    });
-    let temp = Array.from(confirmClipImgs);
-    temp = temp.filter((item) => {
-      return !item.confirm.r;
-    });
-    temp.splice(index, 1);
-    setCandidateLeftClipImgs(temp);
-  }
-
-  function searchCandidateRightClipImgs(currentSelectedPair) {
-    const index = confirmClipImgs.findIndex((item) => {
-      return item.id == currentSelectedPair.id;
-    });
-    let temp = Array.from(confirmClipImgs);
-    temp = temp.filter((item) => {
-      return !item.confirm.l;
-    });
-    temp.splice(index, 1);
-    setCandidateRightClipImgs(temp);
-  }
-
-  function confirmLargeLeftClip(pair) {
-    const tr = currentSelectedPair.content.at(0).at(0);
-    const br = currentSelectedPair.content.at(1).at(0);
-    const tl = pair.content.at(0).at(0);
-    const bl = pair.content.at(1).at(0);
-
-    const confirmLargeClipImgIndex = confirmLargeClipImgs.findIndex((item) => {
-      const { type } = item;
-      if (type == "2x2") {
-        return item.contentIds[1].id == pair.id;
-      } else if (type == "2x3") {
-        return item.contentIds[2].id == pair.id;
-      } else if (type == "2x4") {
-        return item.contentIds[3].id == pair.id;
-      } else {
-        return false;
-      }
-    });
-
-    if (~confirmLargeClipImgIndex) {
-      let confirmLargeClipImg = confirmLargeClipImgs[confirmLargeClipImgIndex];
-      const { type } = confirmLargeClipImg;
-      if (type == "2x2") {
-        confirmLargeClipImg.type = "2x3";
-      } else if (type == "2x3") {
-        confirmLargeClipImg.type = "2x4";
-      } else if (type == "2x4") {
-        confirmLargeClipImg.type = "2x5";
-      }
-      confirmLargeClipImg.contentIds.push(currentSelectedPair.id);
-      confirmLargeClipImg.content[0].push(currentSelectedPair.content[0][0]);
-      confirmLargeClipImg.content[1].push(currentSelectedPair.content[1][0]);
-
-      setConfirmLargeClipImgs(Array.from(confirmLargeClipImgs));
-    } else {
-      let newPiar = {};
-      newPiar.id = nanoid();
-      newPiar.type = "2x2";
-      newPiar.contentIds = [pair.id, currentSelectedPair.id];
-      newPiar.content = [
-        [tr, tl],
-        [br, bl],
-      ];
-
-      const index = confirmClipImgs.findIndex(
-        (item) => currentSelectedPair.id == item.id,
-      );
-      currentSelectedPair.confirm.l = pair.id;
-      confirmClipImgs[index] = currentSelectedPair;
-      setConfirmClipImgs(Array.from(confirmClipImgs));
-
-      confirmLargeClipImgs.unshift(newPiar);
-      setConfirmLargeClipImgs(Array.from(confirmLargeClipImgs));
-    }
-  }
-
-  function confirmLargeRightClip(pair) {
-    const tl = currentSelectedPair.content.at(0).at(0);
-    const bl = currentSelectedPair.content.at(1).at(0);
-    const tr = pair.content.at(0).at(0);
-    const br = pair.content.at(1).at(0);
-
-    const confirmLargeClipImgIndex = confirmLargeClipImgs.findIndex((item) => {
-      const { type } = item;
-      if (type == "2x2") {
-        return item.contentIds[0].id == pair.id;
-      } else if (type == "2x3") {
-        return item.contentIds[0].id == pair.id;
-      } else if (type == "2x4") {
-        return item.contentIds[0].id == pair.id;
-      } else {
-        return false;
-      }
-    });
-
-    if (~confirmLargeClipImgIndex) {
-      let confirmLargeClipImg = confirmLargeClipImgs[confirmLargeClipImgIndex];
-      const { type } = confirmLargeClipImg;
-      if (type == "2x2") {
-        confirmLargeClipImg.type = "2x3";
-      } else if (type == "2x3") {
-        confirmLargeClipImg.type = "2x4";
-      } else if (type == "2x4") {
-        confirmLargeClipImg.type = "2x5";
-      }
-      confirmLargeClipImg.contentIds.unshift(currentSelectedPair.id);
-      confirmLargeClipImg.content[0].unshift(currentSelectedPair.content[0][0]);
-      confirmLargeClipImg.content[1].unshift(currentSelectedPair.content[1][0]);
-
-      setConfirmLargeClipImgs(Array.from(confirmLargeClipImgs));
-    } else {
-      let newPiar = {};
-      newPiar.id = nanoid();
-      newPiar.type = "2x2";
-      newPiar.contentIds = [currentSelectedPair.id, pair.id];
-      newPiar.content = [
-        [tl, tr],
-        [bl, br],
-      ];
-
-      const index = confirmClipImgs.findIndex(
-        (item) => currentSelectedPair.id == item.id,
-      );
-      currentSelectedPair.confirm.l = pair.id;
-      confirmClipImgs[index] = currentSelectedPair;
-      setConfirmClipImgs(Array.from(confirmClipImgs));
-
-      confirmLargeClipImgs.unshift(newPiar);
-      setConfirmLargeClipImgs(Array.from(confirmLargeClipImgs));
-    }
-  }
-
-  function unCheckLargeClip(clip) {
-    const index = confirmLargeClipImgs.findIndex((item) => item.id == clip.id);
-    confirmLargeClipImgs.splice(index, 1);
-
-    setConfirmLargeClipImgs(Array.from(confirmLargeClipImgs));
   }
 
   function reSortConfirmClipImg(index) {
