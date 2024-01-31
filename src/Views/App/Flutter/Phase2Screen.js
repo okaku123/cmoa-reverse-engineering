@@ -31,13 +31,20 @@ function imgLoad(url) {
 }
 
 export default function Phase2Screen(props) {
+  const {
+    confirmClipImgs,
+    setConfirmClipImgs,
+    currentSelectedPair,
+    setCurrentSelectedPair,
+    candidateLeftClipImgs,
+    setCandidateLeftClipImgs,
+    candidateRightClipImgs,
+    setCandidateRightClipImgs,
+    confirmLargeClipImgs,
+    setConfirmLargeClipImgs,
+  } = props;
+
   const clipImgsRef = useRef();
-  const [confirmClipImgs, setConfirmClipImgs] = useState([]);
-  const [currentSelectedPair, setCurrentSelectedPair] = useState(null);
-  const [candidateLeftClipImgs, setCandidateLeftClipImgs] = useState([]);
-  const [candidateRightClipImgs, setCandidateRightClipImgs] = useState([]);
-  const [confirmLargeClipImgs, setConfirmLargeClipImgs] = useState([]);
-  const [_clipCoordinate, setClipCoordinate] = useState(null);
 
   function findSingoPair(index = 0) {
     // clipImgs:{
@@ -130,8 +137,8 @@ export default function Phase2Screen(props) {
       newPiar.type = "2x2";
       newPiar.contentIds = [pair.id, currentSelectedPair.id];
       newPiar.content = [
-        [tr, tl],
-        [br, bl],
+        [tl, tr],
+        [bl, br],
       ];
 
       const index = confirmClipImgs.findIndex(

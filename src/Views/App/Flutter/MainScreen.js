@@ -269,13 +269,35 @@ export default function MainScreen(props) {
     setUnConfirmClipImgs(clipImgs);
   }
 
+  function saveList() {
+    const latestConfirmClipImgsStr = JSON.stringify(
+      latestConfirmClipImgs.current,
+    );
+    console.log(latestConfirmClipImgsStr);
+  }
+
   return (
     <>
       <div className="container-full w-full h-full bg-base-100 overflow-hidden">
-        <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
-        {/* {currentPage == "1" &&
-                    <Phase2Screen />
-                } */}
+        <Header
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          saveList={saveList}
+        />
+        {currentPage == "1" && (
+          <Phase2Screen
+            confirmClipImgs={confirmClipImgs}
+            setConfirmClipImgs={setConfirmClipImgs}
+            currentSelectedPair={currentSelectedPair}
+            setCurrentSelectedPair={setCurrentSelectedPair}
+            candidateLeftClipImgs={candidateLeftClipImgs}
+            setCandidateLeftClipImgs={setCandidateLeftClipImgs}
+            candidateRightClipImgs={candidateRightClipImgs}
+            setCandidateRightClipImgs={setCandidateRightClipImgs}
+            confirmLargeClipImgs={confirmLargeClipImgs}
+            setConfirmLargeClipImgs={setConfirmLargeClipImgs}
+          />
+        )}
         {currentPage == "0" && (
           <Phase1Screen
             tempClipImgs={tempClipImgs}
