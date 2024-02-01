@@ -48,102 +48,21 @@ export default function Phase1Screen(props) {
     currentFiexd,
     corpOffsetRef,
     calcHeight,
+    latestTempClipImgs,
   } = props;
-
-  // const location = useLocation();
-  // const clipCoordinate = location.state.clipCoordinate;
-  // const imgSize = location.state.imgSize;
-
-  // const calcHeight = 3;
-
-  // const [progress, setProgress] = useState(3);
-
-  // const [mainImg, setMainImg] = useState(null);
-  // const [tempClipImgs, setClipImgs] = useState([]);
-  // const clipImgsRef = useRef();
-  // const unClipedBottomImagesRef = useRef();
-  // const [searchLoadingbottomClip, setSearchLoadingbottomClip] = useState(false);
-  // const bottomClipIndexsRef = useRef();
-
-  // const [currentSelectedClipImg, setCurrentSelectedClipImg] = useState(null);
-  // //顶部可能匹配的切片
-  // const [candidateClipImgs, setCandidateClipImgs] = useState([]);
-  // //底部可能匹配的切片
-  // const [candidateBottomClipImgs, setCandidateBottomClipImgs] = useState([]);
-
-  // const [unConfirmClipImgs, setUnConfirmClipImgs] = useState([]);
-  // const latestUnConfirmClipImgs = useLatest(unConfirmClipImgs);
-  // /**
-  //  * 已经确认的切片 初级
-  //  */
-  // const [confirmClipImgs, setConfirmClipImgs] = useState([]);
-  // const latestConfirmClipImgs = useLatest(confirmClipImgs);
-
-  // const [currentPage, setCurrentPage] = useState("0");
-
-  // const [currentSelectedPair, setCurrentSelectedPair] = useState(null);
-  // const [candidateLeftClipImgs, setCandidateLeftClipImgs] = useState([]);
-  // const [candidateRightClipImgs, setCandidateRightClipImgs] = useState([]);
-
-  // const [confirmLargeClipImgs, setConfirmLargeClipImgs] = useState([]);
-  // const [_clipCoordinate, setClipCoordinate] = useState(null);
-  // const currentFiexd = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
-
-  // const corpOffsetRef = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
-
-  //ban
-  // useEffect(() => {
-  //   const { width, height } = imgSize;
-  //   console.log(width, height);
-  //   const { horizontal, vertical } = clipCoordinate;
-  //   //将切割坐标处理为canvas切割用的偏移量
-  //   let temp = [];
-  //   for (let i = 0; i < 8; i++) {
-  //     const H = horizontal[i];
-  //     let nextH;
-  //     if (i == 7) {
-  //       nextH = height;
-  //     } else {
-  //       nextH = horizontal[i + 1];
-  //     }
-  //     for (let j = 0; j < 8; j++) {
-  //       const W = vertical[j];
-  //       let nextW;
-  //       if (j == 7) {
-  //         nextW = width;
-  //       } else {
-  //         nextW = vertical[j + 1];
-  //       }
-
-  //       const offsetX = W;
-  //       const offsetY = H;
-  //       const clipWidth = nextW - W;
-  //       const clipHeight = nextH - H;
-
-  //       temp.push({ offsetX, offsetY, clipWidth, clipHeight });
-  //     }
-  //   }
-
-  //   setClipCoordinate(temp);
-  //   console.log(temp);
-  // }, [clipCoordinate, imgSize]);
-
-  //ban
-  // useEffect(() => {
-  //   if (!!_clipCoordinate) {
-  //     (async () => {
-  //       await delay(60);
-  //       await prepareImgClips2();
-  //     })();
-  //   }
-  // }, [_clipCoordinate]);
 
   /**
    * 搜索符合目标切片顶部的三张候选切片
    * @param {ClipImg} currentSelectedClipImg
    */
   async function searchCandidateClipImgs(currentSelectedClipImg) {
+    //容纳切片
+    let candidateClipImgs = [];
+    //使用ref保持最新
+    const tempClipImgs = latestTempClipImgs.current;
+    //make a copy
     let clipImgsCopy = Array.from(tempClipImgs);
+    //过滤掉已经被排除的切片
     clipImgsCopy = clipImgsCopy.filter((item) => {
       return !currentSelectedClipImg.mismatchTopArrary.includes(item.id);
     });
@@ -151,11 +70,16 @@ export default function Phase1Screen(props) {
     clipImgsCopy = clipImgsCopy.filter((item) => {
       return !item.confirm.b;
     });
-
+    //过滤掉等待匹配的当前切片自己
     const currentSelectedClipImgIndex = clipImgsCopy.findIndex(
       (item) => item.id == currentSelectedClipImg.id,
     );
     clipImgsCopy.splice(currentSelectedClipImgIndex, 1);
+
+    if (clipImgsCopy.length == 0) {
+      return;
+    }
+
     let clipImgsCopyEntropys = clipImgsCopy.map((item) => item.entropy.b);
     let { index: indexofEntropys, closestNumber } = findClosestNumber(
       clipImgsCopyEntropys,
@@ -165,8 +89,16 @@ export default function Phase1Screen(props) {
     const firstCandidateClipImg = clipImgsCopy.find(
       (item) => item.id == firstCandidateClipImgID,
     );
-
+    //排除掉熵最近的一张切片
     clipImgsCopy.splice(indexofEntropys, 1);
+
+    if (clipImgsCopy.length == 0) {
+      //...do something
+      candidateClipImgs.push(firstCandidateClipImg);
+      setCandidateClipImgs(candidateClipImgs);
+      return;
+    }
+
     clipImgsCopyEntropys = clipImgsCopy.map((item) => item.entropy.b);
     let { index: indexofEntropysNear, closestNumberNear } = findClosestNumber(
       clipImgsCopyEntropys,
@@ -176,8 +108,15 @@ export default function Phase1Screen(props) {
     const secondCandidateClipImg = clipImgsCopy.find(
       (item) => item.id == secondCandidateClipImgID,
     );
-
     clipImgsCopy.splice(indexofEntropysNear, 1);
+
+    if (clipImgsCopy.length == 0) {
+      candidateClipImgs.push(secondCandidateClipImg);
+      candidateClipImgs.push(firstCandidateClipImg);
+      setCandidateClipImgs(candidateClipImgs);
+      return;
+    }
+
     clipImgsCopyEntropys = clipImgsCopy.map((item) => item.entropy.b);
     let { index: indexofEntropysNearNear, closestNumberNearNear } =
       findClosestNumber(clipImgsCopyEntropys, currentSelectedClipImg.entropy.t);
@@ -186,11 +125,9 @@ export default function Phase1Screen(props) {
       (item) => item.id == thirdCandidateClipImgID,
     );
 
-    let candidateClipImgs = [];
     candidateClipImgs.push(secondCandidateClipImg);
     candidateClipImgs.push(firstCandidateClipImg);
     candidateClipImgs.push(thirdCandidateClipImg);
-
     setCandidateClipImgs(candidateClipImgs);
   }
 
@@ -199,6 +136,8 @@ export default function Phase1Screen(props) {
    * @param {ClipImg} currentSelectedClipImg
    */
   async function searchCandidateBottomClipImgs(currentSelectedClipImg) {
+    let candidateClipImgs = [];
+    const tempClipImgs = latestTempClipImgs.current;
     let clipImgsCopy = Array.from(tempClipImgs);
     clipImgsCopy = clipImgsCopy.filter((item) => {
       return !currentSelectedClipImg.mismatchBottomArrary.includes(item.id);
@@ -213,6 +152,10 @@ export default function Phase1Screen(props) {
     );
     clipImgsCopy.splice(currentSelectedClipImgIndex, 1);
 
+    if (clipImgsCopy.length == 0) {
+      return;
+    }
+
     let clipImgsCopyEntropys = clipImgsCopy.map((item) => item.entropy.t);
     let { index: indexofEntropys, closestNumber } = findClosestNumber(
       clipImgsCopyEntropys,
@@ -222,8 +165,13 @@ export default function Phase1Screen(props) {
     const firstCandidateClipImg = clipImgsCopy.find(
       (item) => item.id == firstCandidateClipImgID,
     );
-
     clipImgsCopy.splice(indexofEntropys, 1);
+
+    if (clipImgsCopy.length == 0) {
+      candidateClipImgs.push(firstCandidateClipImg);
+      setCandidateBottomClipImgs(candidateClipImgs);
+      return;
+    }
     clipImgsCopyEntropys = clipImgsCopy.map((item) => item.entropy.t);
     let { index: indexofEntropysNear, closestNumberNear } = findClosestNumber(
       clipImgsCopyEntropys,
@@ -235,6 +183,14 @@ export default function Phase1Screen(props) {
     );
 
     clipImgsCopy.splice(indexofEntropysNear, 1);
+
+    if (clipImgsCopy.length == 0) {
+      candidateClipImgs.push(firstCandidateClipImg);
+      candidateClipImgs.push(secondCandidateClipImg);
+      setCandidateBottomClipImgs(candidateClipImgs);
+      return;
+    }
+
     clipImgsCopyEntropys = clipImgsCopy.map((item) => item.entropy.t);
     let { index: indexofEntropysNearNear, closestNumberNearNear } =
       findClosestNumber(clipImgsCopyEntropys, currentSelectedClipImg.entropy.b);
@@ -243,12 +199,9 @@ export default function Phase1Screen(props) {
       (item) => item.id == thirdCandidateClipImgID,
     );
 
-    let candidateClipImgs = [];
-
     candidateClipImgs.push(firstCandidateClipImg);
     candidateClipImgs.push(secondCandidateClipImg);
     candidateClipImgs.push(thirdCandidateClipImg);
-
     setCandidateBottomClipImgs(candidateClipImgs);
   }
 
