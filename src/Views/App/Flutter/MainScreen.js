@@ -16,8 +16,13 @@ import Header from "./Header";
 import { useLocation } from "react-router";
 import Phase1Screen from "./Phase1Screen";
 import Phase2Screen from "./Phase2Screen";
+import Phase3Screen from "./Phase3Screen";
 import { calculateEntropy, findClosestNumber } from "./Tools";
 import { useLatest } from "react-use";
+import tempLatestConfirmClipImgsStr from "./temp";
+import tempLatestUnConfirmClipImgsStr from "./temp2";
+import latestConfirmLargeClipImgsStr from "./temp4";
+// import latestTempClipImgsStr from "./temp3"
 
 dayjs.extend(relativeTime);
 dayjs.locale("zh-cn");
@@ -53,14 +58,10 @@ export default function MainScreen(props) {
   const bottomClipIndexsRef = useRef();
 
   const [currentSelectedClipImg, setCurrentSelectedClipImg] = useState(null);
-  const latestCurrentSelectedClipImg = useLatest(currentSelectedClipImg);
-
   //顶部可能匹配的切片
   const [candidateClipImgs, setCandidateClipImgs] = useState([]);
-  let lastCandidateClipImgs = useLatest(candidateClipImgs);
   //底部可能匹配的切片
   const [candidateBottomClipImgs, setCandidateBottomClipImgs] = useState([]);
-  let lastCandidateBottomClipImgs = useLatest(candidateBottomClipImgs);
 
   const [unConfirmClipImgs, setUnConfirmClipImgs] = useState([]);
   const latestUnConfirmClipImgs = useLatest(unConfirmClipImgs);
@@ -77,6 +78,7 @@ export default function MainScreen(props) {
   const [candidateRightClipImgs, setCandidateRightClipImgs] = useState([]);
 
   const [confirmLargeClipImgs, setConfirmLargeClipImgs] = useState([]);
+  const lastConfirmLargeClipImgs = useLatest(confirmLargeClipImgs);
   const [_clipCoordinate, setClipCoordinate] = useState(null);
   const currentFiexd = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
 
@@ -274,11 +276,32 @@ export default function MainScreen(props) {
     setUnConfirmClipImgs(clipImgs);
   }
 
+  /**
+   * 保存切片数组到控制台
+   */
   function saveList() {
     const latestConfirmClipImgsStr = JSON.stringify(
       latestConfirmClipImgs.current,
     );
+    const latestUnConfirmClipImgsStr = JSON.stringify(
+      latestUnConfirmClipImgs.current,
+    );
+    const latestTempClipImgsStr = JSON.stringify(latestTempClipImgs.current);
+    let latestConfirmLargeClipImgsStr = JSON.stringify(
+      lastConfirmLargeClipImgs.current,
+    );
     console.log(latestConfirmClipImgsStr);
+    console.log(latestUnConfirmClipImgsStr);
+    // console.log(latestTempClipImgsStr)
+    console.log(latestConfirmLargeClipImgsStr);
+  }
+  /**
+   * 恢复切片数组
+   */
+  function recoverList() {
+    setConfirmClipImgs(tempLatestConfirmClipImgsStr);
+    setUnConfirmClipImgs(tempLatestUnConfirmClipImgsStr);
+    setConfirmLargeClipImgs(latestConfirmLargeClipImgsStr);
   }
 
   return (
@@ -288,7 +311,22 @@ export default function MainScreen(props) {
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           saveList={saveList}
+          recoverList={recoverList}
         />
+        {currentPage == "2" && (
+          <Phase3Screen
+            confirmClipImgs={confirmClipImgs}
+            setConfirmClipImgs={setConfirmClipImgs}
+            currentSelectedPair={currentSelectedPair}
+            setCurrentSelectedPair={setCurrentSelectedPair}
+            candidateLeftClipImgs={candidateLeftClipImgs}
+            setCandidateLeftClipImgs={setCandidateLeftClipImgs}
+            candidateRightClipImgs={candidateRightClipImgs}
+            setCandidateRightClipImgs={setCandidateRightClipImgs}
+            confirmLargeClipImgs={confirmLargeClipImgs}
+            setConfirmLargeClipImgs={setConfirmLargeClipImgs}
+          />
+        )}
         {currentPage == "1" && (
           <Phase2Screen
             confirmClipImgs={confirmClipImgs}
@@ -301,6 +339,7 @@ export default function MainScreen(props) {
             setCandidateRightClipImgs={setCandidateRightClipImgs}
             confirmLargeClipImgs={confirmLargeClipImgs}
             setConfirmLargeClipImgs={setConfirmLargeClipImgs}
+            lastConfirmLargeClipImgs={lastConfirmLargeClipImgs}
           />
         )}
         {currentPage == "0" && (
@@ -323,9 +362,6 @@ export default function MainScreen(props) {
             corpOffsetRef={corpOffsetRef}
             calcHeight={calcHeight}
             latestTempClipImgs={latestTempClipImgs}
-            latestCurrentSelectedClipImg={latestCurrentSelectedClipImg}
-            lastCandidateClipImgs={lastCandidateClipImgs}
-            lastCandidateBottomClipImgs={lastCandidateBottomClipImgs}
           />
         )}
       </div>

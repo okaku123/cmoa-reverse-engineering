@@ -19,6 +19,7 @@ dayjs.locale("zh-cn");
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const imgUrl = "./sbcGetImg1.jpg";
+const viewHeight = "calc(100vh - 64px)";
 
 function imgLoad(url) {
   return new Promise((resolve) => {
@@ -42,6 +43,7 @@ export default function Phase2Screen(props) {
     setCandidateRightClipImgs,
     confirmLargeClipImgs,
     setConfirmLargeClipImgs,
+    lastConfirmLargeClipImgs,
   } = props;
 
   const clipImgsRef = useRef();
@@ -98,6 +100,7 @@ export default function Phase2Screen(props) {
   }
 
   function confirmLargeLeftClip(pair) {
+    let confirmLargeClipImgs = lastConfirmLargeClipImgs.current;
     const tr = currentSelectedPair.content.at(0).at(0);
     const br = currentSelectedPair.content.at(1).at(0);
     const tl = pair.content.at(0).at(0);
@@ -146,6 +149,11 @@ export default function Phase2Screen(props) {
       );
       currentSelectedPair.confirm.l = pair.id;
       confirmClipImgs[index] = currentSelectedPair;
+
+      const index2 = confirmClipImgs.findIndex((item) => pair.id == item.id);
+      pair.confirm.r = pair.id;
+      confirmClipImgs[index2] = pair;
+
       setConfirmClipImgs(Array.from(confirmClipImgs));
 
       confirmLargeClipImgs.unshift(newPiar);
@@ -154,6 +162,7 @@ export default function Phase2Screen(props) {
   }
 
   function confirmLargeRightClip(pair) {
+    let confirmLargeClipImgs = lastConfirmLargeClipImgs.current;
     const tl = currentSelectedPair.content.at(0).at(0);
     const bl = currentSelectedPair.content.at(1).at(0);
     const tr = pair.content.at(0).at(0);
@@ -202,6 +211,11 @@ export default function Phase2Screen(props) {
       );
       currentSelectedPair.confirm.l = pair.id;
       confirmClipImgs[index] = currentSelectedPair;
+
+      const index2 = confirmClipImgs.findIndex((item) => pair.id == item.id);
+      pair.confirm.r = pair.id;
+      confirmClipImgs[index2] = pair;
+
       setConfirmClipImgs(Array.from(confirmClipImgs));
 
       confirmLargeClipImgs.unshift(newPiar);
@@ -226,12 +240,12 @@ export default function Phase2Screen(props) {
   return (
     <>
       <div
-        style={{ height: "calc(100vh - 176px)" }}
+        style={{ height: viewHeight }}
         className="w-full flex justify-between items-start"
       >
-        <div className="w-[360px] border-dashed border-2 border-sky-500">
+        <div className="w-[360px]">
           <div
-            style={{ height: "calc(100vh - 176px)" }}
+            style={{ height: viewHeight }}
             class=" my-0 grid grid-cols-4 gap-4 overflow-x-scroll"
           >
             {confirmClipImgs.map((item, index) => {
@@ -250,6 +264,7 @@ export default function Phase2Screen(props) {
 
               return (
                 <div
+                  key={id}
                   Key={"confirmClipImgs" + clipTop.id}
                   style={{ fontSize: 9 }}
                   className=""
@@ -272,11 +287,13 @@ export default function Phase2Screen(props) {
           </div>
         </div>
 
-        <div className="w-[320px] border-dashed border-2 border-yellow-300 flex justify-between items-start ml-5">
+        <div className="divider divider-horizontal"></div>
+
+        <div className="w-[320px] flex justify-between items-start">
           {/* 左侧的候选 */}
           <div
             className="w-20 overflow-y-scroll"
-            style={{ height: "calc(100vh - 176px)" }}
+            style={{ height: viewHeight }}
           >
             {candidateLeftClipImgs.map((item, index) => {
               let { rowCount, colCount, content } = item;
@@ -304,7 +321,7 @@ export default function Phase2Screen(props) {
           {/* 中间的当前选择切片 */}
           <div
             className="w-20 flex flex-col justify-center items-center ml-5"
-            style={{ height: "calc(100vh - 176px)" }}
+            style={{ height: viewHeight }}
           >
             {currentSelectedPair && (
               <div
@@ -339,7 +356,7 @@ export default function Phase2Screen(props) {
           {/* 右边的候选切面 */}
           <div
             className="w-25 overflow-y-scroll  overflow-x-hidden"
-            style={{ height: "calc(100vh - 176px)" }}
+            style={{ height: viewHeight }}
           >
             {candidateLeftClipImgs.map((item, index) => {
               let { id, type, content } = item;
@@ -365,8 +382,10 @@ export default function Phase2Screen(props) {
           </div>
         </div>
 
+        <div className="divider divider-horizontal"></div>
+
         {/* 已经确认的大切片 */}
-        <div className="flex-1 flex justify-between items-start ml-5 border-dashed border-2 border-green-300">
+        <div className="flex-1 flex justify-between items-start">
           <div class=" my-4 grid grid-cols-2 gap-4 overflow-x-scroll">
             {confirmLargeClipImgs.map((item, index) => {
               const { id, type, content } = item;
