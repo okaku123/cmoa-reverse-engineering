@@ -44,6 +44,8 @@ export default function Phase2Screen(props) {
     confirmLargeClipImgs,
     setConfirmLargeClipImgs,
     lastConfirmLargeClipImgs,
+    unCheckConfirmClipImgs,
+    setUnCheckConfirmClipImgs,
   } = props;
 
   const clipImgsRef = useRef();
@@ -236,6 +238,21 @@ export default function Phase2Screen(props) {
       searchCandidateRightClipImgs(currentSelectedPair);
     }
   }, [currentSelectedPair]);
+
+  useEffect(() => {
+    let confirmClipImgsCopy = Array.from(confirmClipImgs);
+    if (confirmLargeClipImgs.length > 0) {
+      for (const confirmLargeClipImg of confirmLargeClipImgs) {
+        for (const contentId of confirmLargeClipImg.contentIds) {
+          const index = confirmClipImgsCopy.findIndex(
+            ({ id }) => id == contentId,
+          );
+          confirmClipImgsCopy.splice(index, 1);
+        }
+      }
+      setUnCheckConfirmClipImgs(confirmClipImgsCopy);
+    }
+  }, [confirmLargeClipImgs]);
 
   return (
     <>

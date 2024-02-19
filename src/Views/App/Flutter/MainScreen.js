@@ -22,7 +22,7 @@ import { useLatest } from "react-use";
 import tempLatestConfirmClipImgsStr from "./temp";
 import tempLatestUnConfirmClipImgsStr from "./temp2";
 import latestConfirmLargeClipImgsStr from "./temp4";
-// import latestTempClipImgsStr from "./temp3"
+import latestTempClipImgsStr from "./temp3";
 
 dayjs.extend(relativeTime);
 dayjs.locale("zh-cn");
@@ -83,6 +83,8 @@ export default function MainScreen(props) {
   const currentFiexd = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
 
   const corpOffsetRef = useRef({ top: 0, left: 0, bottom: 0, right: 0 });
+  const [unCheckConfirmClipImgs, setUnCheckConfirmClipImgs] = useState([]);
+  const [unCheck1X1Imgs, setUnCheck1X1Imgs] = useState([]);
 
   useEffect(() => {
     const { width, height } = imgSize;
@@ -292,17 +294,38 @@ export default function MainScreen(props) {
     );
     console.log(latestConfirmClipImgsStr);
     console.log(latestUnConfirmClipImgsStr);
-    // console.log(latestTempClipImgsStr)
+    console.log(latestTempClipImgsStr);
     console.log(latestConfirmLargeClipImgsStr);
   }
+
   /**
    * 恢复切片数组
    */
-  function recoverList() {
-    setConfirmClipImgs(tempLatestConfirmClipImgsStr);
-    setUnConfirmClipImgs(tempLatestUnConfirmClipImgsStr);
-    setConfirmLargeClipImgs(latestConfirmLargeClipImgsStr);
+  async function recoverList() {
+    setClipImgs(JSON.parse(latestTempClipImgsStr));
+    delay(2 * 1000);
+    setConfirmClipImgs(JSON.parse(tempLatestConfirmClipImgsStr));
+    setUnConfirmClipImgs(JSON.parse(tempLatestUnConfirmClipImgsStr));
+    setConfirmLargeClipImgs(JSON.parse(latestConfirmLargeClipImgsStr));
   }
+
+  useEffect(() => {
+    const unCheckedClipImgs = tempClipImgs.filter((item) => {
+      let result = true;
+      for (const confirmClipImg of confirmClipImgs) {
+        const incoule =
+          confirmClipImg.content[0][0].id == item.id ||
+          confirmClipImg.content[1][0].id == item.id;
+        if (incoule) {
+          result = false;
+          continue;
+        }
+      }
+      return result;
+    });
+    console.log(unCheckedClipImgs.length);
+    setUnCheck1X1Imgs(unCheckedClipImgs);
+  }, [confirmClipImgs]);
 
   return (
     <>
@@ -325,6 +348,10 @@ export default function MainScreen(props) {
             setCandidateRightClipImgs={setCandidateRightClipImgs}
             confirmLargeClipImgs={confirmLargeClipImgs}
             setConfirmLargeClipImgs={setConfirmLargeClipImgs}
+            unCheckConfirmClipImgs={unCheckConfirmClipImgs}
+            setUnCheckConfirmClipImgs={setUnCheckConfirmClipImgs}
+            unCheck1X1Imgs={unCheck1X1Imgs}
+            setUnCheck1X1Imgs={setUnCheck1X1Imgs}
           />
         )}
         {currentPage == "1" && (
@@ -340,6 +367,8 @@ export default function MainScreen(props) {
             confirmLargeClipImgs={confirmLargeClipImgs}
             setConfirmLargeClipImgs={setConfirmLargeClipImgs}
             lastConfirmLargeClipImgs={lastConfirmLargeClipImgs}
+            unCheckConfirmClipImgs={unCheckConfirmClipImgs}
+            setUnCheckConfirmClipImgs={setUnCheckConfirmClipImgs}
           />
         )}
         {currentPage == "0" && (

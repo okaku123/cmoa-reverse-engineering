@@ -350,6 +350,74 @@ export default function Phase1Screen(props) {
     };
   }, []);
 
+  //重新搜索底部一排的切片,排除掉已经被选中的切片
+  async function searchBottomClip() {
+    setSearchLoadingbottomClip(true);
+
+    let unConfirmClipImgs = Array.from(clipImgsRef.current);
+    let unClipedBottomImages = Array.from(unClipedBottomImagesRef.current);
+    //过滤掉已经确认的切片
+    unConfirmClipImgs = unConfirmClipImgs.filter((item) => !item.confirm);
+    //排除掉确认不匹配的切片
+    unConfirmClipImgs = unConfirmClipImgs.filter((item) => !item.mismatch);
+    //
+
+    let searchedClipIds = [];
+    let index = 0;
+    for (let unClipedBottomImage of unClipedBottomImages) {
+      const itemPostion = `1-${index}`;
+
+      const _unConfirmClipImgs = unConfirmClipImgs.filter((item) => {
+        let filter = true;
+        if (item.mismatchArrary.length > 0) {
+          if (
+            ~item.mismatchArrary.findIndex(
+              (mismatchItem) => mismatchItem == itemPostion,
+            )
+          ) {
+            filter = false;
+          }
+        }
+        return filter;
+      });
+
+      let unConfirmClipImgsBottomEntropys = _unConfirmClipImgs.map((item) => {
+        const { id, entropy } = item;
+        return { id, entropy: entropy.b };
+      });
+
+      if (unClipedBottomImage.clip && unClipedBottomImage.clip.confirm) {
+        searchedClipIds.push(unClipedBottomImage.clip.id);
+      } else {
+        const unClipedBottomImageEntropy = unClipedBottomImage.entropy; // 顶部切片顶部的的熵
+        const entropys = unConfirmClipImgsBottomEntropys.map(
+          (item) => item.entropy,
+        ); //没有确定的切片的所有的底部熵
+        let { index: indexofEntropys, closestNumber } = findClosestNumber(
+          entropys,
+          unClipedBottomImageEntropy,
+        );
+        let id = unConfirmClipImgsBottomEntropys[indexofEntropys].id; //熵最接近的切片的id
+        searchedClipIds.push(id);
+      }
+      index += 1;
+    }
+
+    let bottomClipIndexs = [];
+    for (const searchedClipId of searchedClipIds) {
+      const unConfirmClipImg = clipImgsRef.current.find(
+        (item) => item.id == searchedClipId,
+      );
+      bottomClipIndexs.push(unConfirmClipImg);
+    }
+
+    // setBottomClipIndexs(bottomClipIndexs)
+    bottomClipIndexsRef.current = bottomClipIndexs;
+
+    await delay(200);
+    setSearchLoadingbottomClip(false);
+  }
+
   async function getImgClipTopPartEntropy(preImgClip) {
     const { url } = preImgClip;
     const img0 = await imgLoad(url);
@@ -445,6 +513,33 @@ export default function Phase1Screen(props) {
   //   clipImgsRef.current = clipImgs;
   //   setUnConfirmClipImgs(clipImgs);
   // }
+
+  function findSingoPair(index = 0) {
+    // clipImgs:{
+    //     id,
+    //     url: blockDataURL,
+    //     entropy: { l: entropy_l, r: entropy_r, t: entropy_t, b: entropy_b },
+    //     confirm,
+    //     mismatch,
+    //     mismatchArrary: []
+    // }
+    let clipImgs = clipImgsRef.current;
+    let sourceClip = clipImgs.at(index);
+    let targetClip = null;
+    let searchClipImgs = Array.from(clipImgs);
+    searchClipImgs.splice(index, 1);
+
+    const entropys = searchClipImgs.map((item) => item.entropy.b);
+    const sourceClipTopEntropy = sourceClip.entropy.t;
+    let { index: indexofEntropys, closestNumber } = findClosestNumber(
+      entropys,
+      sourceClipTopEntropy,
+    );
+    let id = searchClipImgs[indexofEntropys].id;
+    const postion = clipImgs.findIndex((item) => item.id == id);
+    targetClip = lodash.cloneDeep(clipImgs.at(postion));
+    console.log(postion, sourceClipTopEntropy, closestNumber, id);
+  }
 
   /**
    * 确认顶部匹配的切片
